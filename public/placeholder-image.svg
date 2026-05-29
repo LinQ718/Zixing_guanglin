@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder Image</title>
+  <desc id="desc">Neutral placeholder artwork for admin seed content.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2ecde"/>
+      <stop offset="100%" stop-color="#e1d7bf"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <g fill="none" stroke="#9d8354" stroke-width="6" opacity="0.65">
+    <circle cx="320" cy="260" r="120"/>
+    <circle cx="850" cy="520" r="180"/>
+    <path d="M120 640 C 340 510, 520 750, 740 610 S 1060 620, 1160 520"/>
+  </g>
+  <g fill="#6f5a35" opacity="0.78" font-family="serif" text-anchor="middle">
+    <text x="600" y="390" font-size="46">自性光林</text>
+    <text x="600" y="440" font-size="24" opacity="0.7">placeholder image</text>
+  </g>
+</svg>
