@@ -101,18 +101,17 @@ const FAVORITES_KEY = "zixing-favorites";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductView[]>([]);
-  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-
-  useEffect(() => {
+  const [favorites, setFavorites] = useState<FavoriteItem[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem(FAVORITES_KEY);
-      if (!raw) return;
+      if (!raw) return [];
       const parsed = JSON.parse(raw) as FavoriteItem[];
-      setFavorites(Array.isArray(parsed) ? parsed : []);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
-      setFavorites([]);
+      return [];
     }
-  }, []);
+  });
 
   useEffect(() => {
     fetch("/api/public/products")

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { promises as fs } from "node:fs";
 import path from "node:path";
@@ -110,3 +111,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message: "上傳失敗，請稍後再試" }, { status: 500 });
   }
 }
+

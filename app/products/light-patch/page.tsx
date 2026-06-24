@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
+import chakraBody from "@/components/Logo/Chakra.png";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -121,23 +123,35 @@ export default function LightPatchPage() {
             <div className="lg:col-span-5 rounded-2xl border border-[rgba(184,155,94,0.22)] bg-[rgba(247,242,232,0.72)] p-6">
               <p className="text-[12px] tracking-[0.16em] text-[rgba(122,104,82,0.72)]">七輪互動區</p>
 
-              <div className="mt-5 mx-auto w-[180px] h-[420px] relative">
-                <div className="absolute left-1/2 top-5 bottom-5 w-px -translate-x-1/2 bg-[rgba(184,155,94,0.2)]" />
+              <div className="mt-5 mx-auto w-[240px] h-[560px] relative overflow-hidden rounded-[2rem] bg-[rgba(255,255,255,0.82)] shadow-inner">
+                <div className="absolute inset-0 flex items-center justify-center px-3">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={chakraBody}
+                      alt="脈輪人像"
+                      fill
+                      className="object-contain"
+                      sizes="240px"
+                      style={{ objectPosition: "center center" }}
+                    />
+                  </div>
+                </div>
+                <div className="absolute left-1/2 top-10 bottom-10 w-px -translate-x-1/2 bg-[rgba(184,155,94,0.2)]" />
                 {CHAKRAS.map((item, index) => {
                   const active = item.id === activeChakra;
-                  const top = 20 + index * 58;
+                  const topPositions = [78, 67, 56, 44, 33, 23, 13];
                   return (
                     <button
                       key={item.id}
                       onClick={() => setActiveChakra(item.id)}
-                      className="absolute left-1/2 -translate-x-1/2 rounded-full border transition-all duration-300"
+                      className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full border transition-all duration-300"
                       style={{
-                        top,
-                        width: 28,
-                        height: 28,
+                        top: `${topPositions[index]}%`,
+                        width: 34,
+                        height: 34,
                         borderColor: active ? "rgba(184,155,94,0.58)" : "rgba(184,155,94,0.26)",
                         background: active ? "rgba(220,200,163,0.4)" : "rgba(247,242,232,0.72)",
-                        boxShadow: active ? "0 0 16px rgba(184,155,94,0.28)" : "none",
+                        boxShadow: active ? "0 0 20px rgba(184,155,94,0.28)" : "none",
                       }}
                       aria-label={item.name}
                     />

@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import Image from "next/image";
+import lanternSeaBackground from "./Logo/lantern Sea.png";
+import lanternSeaModalBackground from "./Logo/Lantern Sea2.png";
+import lanternImage from "./Logo/lantern.png";
 
 type Lamp = {
   id: string;
@@ -21,7 +25,12 @@ type LitLantern = {
   key: string;
   lampName: string;
   wish: string;
-  char: string;
+};
+
+type LanternLayout = {
+  x: number;
+  y: number;
+  scale: number;
 };
 
 const LAMP_CATEGORIES: LampCategory[] = [
@@ -95,41 +104,88 @@ const LIGHTING_PARTICLES = Array.from({ length: 16 }, (_, i) => ({
   size: 2 + (i % 3),
 }));
 
-function getForestLayout(index: number) {
-  const ring = Math.floor(index / 8);
-  const localIndex = index % 8;
-  const xBase = 12 + localIndex * 10;
-  const wave = Math.sin(index * 1.24) * 5;
-  const x = Math.min(92, Math.max(8, xBase + wave - ring * 1.2));
-  const y = Math.min(78, Math.max(12, 62 - ring * 14 + Math.cos(index * 0.9) * 4));
-  const scale = 0.74 + (y - 18) / 96;
+function hashString(value: string) {
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
 
-  return { x, y, scale };
+function seededRandom(seed: number) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function buildLanternLayouts(lanterns: LitLantern[]) {
+  const layouts: Record<string, LanternLayout> = {};
+  const placed: LanternLayout[] = [];
+
+  lanterns.forEach((item, index) => {
+    const baseSeed = hashString(item.key);
+    let picked: LanternLayout | null = null;
+    let spacingFactor = 1;
+
+    for (let attempt = 0; attempt < 120 && !picked; attempt += 1) {
+      if (attempt > 0 && attempt % 30 === 0) {
+        spacingFactor *= 0.93;
+      }
+
+      const seed = baseSeed + attempt * 131 + index * 17;
+      const candidate: LanternLayout = {
+        x: 9 + seededRandom(seed + 1) * 82,
+        y: 16 + seededRandom(seed + 2) * 62,
+        scale: 0.72 + seededRandom(seed + 3) * 0.38,
+      };
+
+      const overlaps = placed.some((existing) => {
+        const avgScale = ((candidate.scale + existing.scale) / 2) * spacingFactor;
+        const radiusX = 3.6 * avgScale;
+        const radiusY = 7.2 * avgScale;
+        const dx = candidate.x - existing.x;
+        const dy = candidate.y - existing.y;
+        return (dx * dx) / (radiusX * radiusX) + (dy * dy) / (radiusY * radiusY) < 1;
+      });
+
+      if (!overlaps) {
+        picked = candidate;
+      }
+    }
+
+    if (!picked) {
+      const col = index % 7;
+      const row = Math.floor(index / 7);
+      picked = {
+        x: Math.min(91, Math.max(9, 12 + col * 12 + seededRandom(baseSeed + 97) * 2.8)),
+        y: Math.min(78, Math.max(16, 20 + row * 10 + seededRandom(baseSeed + 131) * 2.6)),
+        scale: 0.74 + seededRandom(baseSeed + 199) * 0.28,
+      };
+    }
+
+    placed.push(picked);
+    layouts[item.key] = picked;
+  });
+
+  return layouts;
 }
 
 function SeedLantern({
-  char,
   lit,
   size,
   reduceMotion,
 }: {
-  char: string;
   lit: boolean;
   size: "sm" | "lg";
   reduceMotion: boolean;
 }) {
   const isLarge = size === "lg";
-  const bodyW = isLarge ? 58 : 20;
-  const bodyH = isLarge ? 82 : 30;
-  const bodyTop = 6;
-  const bodyCenterY = bodyTop + bodyH / 2;
-  const capW = isLarge ? 34 : 12;
-  const capH = isLarge ? 6 : 3;
-  const fontSize = isLarge ? 12 : 8;
+  const lanternW = isLarge ? 84 : 32;
+  const lanternH = isLarge ? 126 : 48;
 
   return (
     <motion.div
-      className="relative"
+      className="relative shrink-0"
       animate={
         reduceMotion || !lit
           ? undefined
@@ -143,48 +199,39 @@ function SeedLantern({
             }
       }
       transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      style={{ width: bodyW, height: bodyH + (isLarge ? 14 : 8) }}
+      style={{ width: lanternW, height: lanternH + (isLarge ? 8 : 5) }}
     >
-      <span
-        className="absolute left-1/2 top-[2px] -translate-x-1/2 rounded-full"
-        style={{
-          width: capW,
-          height: capH,
-          background: "rgba(247,242,232,0.94)",
-          border: "1px solid rgba(184,155,94,0.45)",
-        }}
+      <Image
+        src={lanternImage}
+        alt="祈願燈籠"
+        width={lanternW}
+        height={lanternH}
+        className="relative z-10 object-contain"
+        priority={false}
       />
 
       <span
-        className="absolute left-1/2 top-[6px] -translate-x-1/2 rounded-[48%]"
+        className="pointer-events-none absolute left-1/2 top-[86%] -z-0 -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
-          width: bodyW,
-          height: bodyH,
-          background: lit
-            ? "radial-gradient(ellipse at 50% 30%, rgba(255,247,232,0.96) 0%, rgba(246,231,200,0.72) 48%, rgba(239,217,165,0.52) 100%)"
-            : "radial-gradient(ellipse at 50% 30%, rgba(246,241,232,0.9) 0%, rgba(233,224,210,0.66) 52%, rgba(217,206,190,0.56) 100%)",
-          border: "1px solid rgba(184,155,94,0.42)",
-          boxShadow: lit
-            ? "inset 0 0 14px rgba(255,244,214,0.34), 0 0 18px rgba(201,178,124,0.22)"
-            : "inset 0 0 8px rgba(255,244,214,0.14)",
+          width: isLarge ? 64 : 24,
+          height: isLarge ? 16 : 8,
+          background: "rgba(72,54,30,0.22)",
+          filter: "blur(6px)",
         }}
       />
 
-      <span
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          top: bodyCenterY,
-          fontSize,
-          color: "rgba(94,70,38,0.78)",
-          letterSpacing: "0.08em",
-          lineHeight: 1,
-        }}
-      >
-        {char}
-      </span>
-
-      <span className="absolute left-1/2 top-[calc(100%-1px)] -translate-x-1/2 h-[7px] w-px bg-[rgba(184,155,94,0.5)]" />
-      <span className="absolute left-1/2 top-[calc(100%+6px)] -translate-x-1/2 h-[4px] w-[4px] rounded-full bg-[rgba(184,155,94,0.56)]" />
+      {lit && (
+        <span
+          className="pointer-events-none absolute left-1/2 top-[56%] -z-0 -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            width: isLarge ? 98 : 40,
+            height: isLarge ? 78 : 30,
+            background:
+              "radial-gradient(circle, rgba(255,236,184,0.42) 0%, rgba(255,236,184,0.16) 54%, rgba(255,236,184,0) 78%)",
+            filter: "blur(1px)",
+          }}
+        />
+      )}
     </motion.div>
   );
 }
@@ -202,6 +249,8 @@ export default function LanternSea() {
   const [name, setName] = useState("");
   const [wishText, setWishText] = useState("");
   const [litLanterns, setLitLanterns] = useState<LitLantern[]>([]);
+
+  const lanternLayouts = useMemo(() => buildLanternLayouts(litLanterns), [litLanterns]);
 
   const activeCategory = useMemo(
     () => LAMP_CATEGORIES.find((category) => category.id === activeCategoryId) ?? LAMP_CATEGORIES[0],
@@ -243,7 +292,6 @@ export default function LanternSea() {
           key: entryKey,
           lampName: selectedLamp.name,
           wish: wishText.trim(),
-          char: selectedLamp.name.charAt(0),
         },
         ...prev,
       ].slice(0, 36));
@@ -383,7 +431,7 @@ export default function LanternSea() {
                   <motion.article
                     key={lamp.id}
                     whileHover={reduceMotion ? undefined : { y: -4 }}
-                    className="relative rounded-2xl border p-5 md:p-6 bg-[rgba(252,248,242,0.8)] backdrop-blur-sm transition-all duration-300"
+                    className="relative flex h-full flex-col rounded-2xl border bg-[rgba(252,248,242,0.8)] p-5 backdrop-blur-sm transition-all duration-300 md:p-6"
                     style={{
                       borderColor: isSelected ? "rgba(184,155,94,0.54)" : "rgba(201,178,124,0.24)",
                       boxShadow: isSelected
@@ -400,16 +448,18 @@ export default function LanternSea() {
                     />
 
                     <div className="relative flex items-start gap-3">
-                      <SeedLantern char={lamp.name.charAt(0)} lit={isSelected} size="sm" reduceMotion={reduceMotion} />
+                      <div className="flex w-7 justify-center pt-0.5">
+                        <SeedLantern lit={isSelected} size="sm" reduceMotion={reduceMotion} />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-serif-tc text-[1.08rem] tracking-[0.12em] text-[rgba(66,48,23,0.9)]">{lamp.name}</h3>
-                        <p className="mt-2 text-[0.92rem] leading-7 tracking-[0.05em] text-[rgba(96,72,36,0.7)]">
+                        <p className="mt-2 min-h-[84px] text-[0.92rem] leading-7 tracking-[0.05em] text-[rgba(96,72,36,0.7)] md:min-h-[98px]">
                           {lamp.description}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-5">
+                    <div className="mt-5 md:mt-auto">
                       <button
                         onClick={() => openConfirm(lamp)}
                         className="w-full md:w-auto px-5 py-2.5 text-[13px] tracking-[0.14em] border rounded-full transition-all duration-300"
@@ -429,23 +479,84 @@ export default function LanternSea() {
           </div>
         </div>
 
-        <div className="mt-14 md:mt-16 rounded-2xl border border-[rgba(201,178,124,0.22)] bg-[rgba(252,248,242,0.72)] p-5 md:p-7">
-          <h3 className="font-serif-tc text-[clamp(1.2rem,2.8vw,1.6rem)] tracking-[0.16em] text-[rgba(86,63,30,0.88)] mb-4">
-            已點亮的燈海
-          </h3>
+        <div className="mt-14 md:mt-16 rounded-2xl border border-[rgba(182,166,134,0.24)] bg-[linear-gradient(160deg,rgba(249,247,243,0.86),rgba(243,240,234,0.8))] p-5 md:p-7 shadow-[0_18px_46px_rgba(94,82,58,0.08)]">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-serif-tc text-[clamp(1.2rem,2.8vw,1.6rem)] tracking-[0.16em] text-[rgba(86,63,30,0.88)]">
+              已點亮的燈海
+            </h3>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full border border-[rgba(167,148,113,0.24)] bg-[rgba(252,250,245,0.72)] px-3 py-1 text-[11px] tracking-[0.12em] text-[rgba(90,73,42,0.68)]">
+                當前燈數 {litLanterns.length}
+              </span>
+              <span className="rounded-full border border-[rgba(167,148,113,0.2)] bg-[rgba(252,250,245,0.62)] px-3 py-1 text-[11px] tracking-[0.12em] text-[rgba(90,73,42,0.58)]">
+                靜心觀想
+              </span>
+            </div>
+          </div>
           {litLanterns.length === 0 ? (
             <p className="text-[13px] tracking-[0.08em] text-[rgba(96,72,36,0.58)] leading-relaxed">
               尚未點亮燈盞，點選上方「點亮此燈」開始祈願。
             </p>
           ) : (
-            <div className="relative h-[300px] sm:h-[330px] md:h-[360px] rounded-xl overflow-visible isolate"
-              style={{
-                background:
-                  "radial-gradient(120% 110% at 50% 100%, rgba(184,155,94,0.1) 0%, rgba(184,155,94,0.04) 44%, rgba(247,242,232,0) 78%), radial-gradient(62% 48% at 22% 82%, rgba(201,178,124,0.08) 0%, rgba(201,178,124,0) 72%), radial-gradient(58% 46% at 80% 78%, rgba(201,178,124,0.07) 0%, rgba(201,178,124,0) 70%)",
-              }}
-            >
-              {litLanterns.map((item, index) => {
-                const { x, y, scale } = getForestLayout(index);
+            <div className="relative h-[300px] sm:h-[330px] md:h-[360px] rounded-xl overflow-hidden isolate border border-[rgba(182,166,134,0.24)]">
+              <Image
+                src={lanternSeaBackground}
+                alt="已點亮燈海背景"
+                fill
+                className="object-cover object-center"
+                sizes="(max-width: 768px) 100vw, 900px"
+                priority={false}
+              />
+
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(248,247,243,0.28) 0%, rgba(245,243,238,0.12) 42%, rgba(241,238,232,0.3) 100%), radial-gradient(110% 95% at 50% 92%, rgba(146,132,104,0.16) 0%, rgba(146,132,104,0.05) 46%, rgba(247,242,232,0) 80%)",
+                }}
+              />
+
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.2]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(152,135,106,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(152,135,106,0.06) 1px, transparent 1px)",
+                  backgroundSize: "42px 42px",
+                  maskImage:
+                    "radial-gradient(ellipse at 50% 64%, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.22) 72%, transparent 100%)",
+                }}
+              />
+
+              <div
+                className="pointer-events-none absolute left-[8%] top-[10%] h-14 w-14 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(255,245,220,0.68) 0%, rgba(255,245,220,0.18) 52%, rgba(255,245,220,0) 74%)",
+                }}
+              />
+
+              {!reduceMotion && (
+                <>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    left: `${10 + (i * 9) % 82}%`,
+                    top: `${12 + (i * 7) % 50}%`,
+                    delay: i * 0.32,
+                  })).map((spark, i) => (
+                    <motion.span
+                      key={`lit-spark-${i}`}
+                      className="pointer-events-none absolute h-[3px] w-[3px] rounded-full bg-[rgba(229,207,152,0.78)]"
+                      style={{ left: spark.left, top: spark.top }}
+                      animate={{ opacity: [0.1, 0.75, 0.12], scale: [0.8, 1.18, 0.8] }}
+                      transition={{ duration: 3.8, delay: spark.delay, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  ))}
+                </>
+              )}
+
+              {litLanterns.map((item) => {
+                const layout = lanternLayouts[item.key];
+                if (!layout) return null;
+                const { x, y, scale } = layout;
                 return (
                   <motion.div
                     key={item.key}
@@ -462,14 +573,16 @@ export default function LanternSea() {
                         reduceMotion
                           ? { scale }
                           : {
+                              x: [0, 0.8, -0.6, 0],
+                              y: [0, -1.6, 0.9, 0],
                               scale: [scale, scale * 1.04, scale],
                               opacity: [0.82, 1, 0.82],
                             }
                       }
-                      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                      transition={{ duration: 8.5, repeat: Infinity, ease: "easeInOut" }}
                       style={{ transform: `translate(-50%, -50%)` }}
                     >
-                      <SeedLantern char={item.char} lit size="sm" reduceMotion={reduceMotion} />
+                      <SeedLantern lit size="sm" reduceMotion={reduceMotion} />
                       <span
                         className="absolute z-30 left-1/2 -top-9 -translate-x-1/2 px-2 py-1 text-[10px] tracking-[0.08em] text-[rgba(78,58,28,0.9)] bg-[rgba(247,242,232,0.98)] border border-[rgba(201,178,124,0.3)] rounded opacity-0 group-hover:opacity-100 transition-opacity duration-250 whitespace-nowrap pointer-events-none shadow-[0_4px_16px_rgba(112,86,48,0.12)]"
                       >
@@ -572,6 +685,23 @@ export default function LanternSea() {
 
               {(lightingState === "lighting" || lightingState === "completed") && (
                 <div className="relative min-h-[330px] overflow-hidden rounded-xl border border-[rgba(201,178,124,0.25)] bg-[rgba(247,242,232,0.64)] p-4 md:p-5">
+                  <Image
+                    src={lanternSeaModalBackground}
+                    alt="點燈視窗背景"
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 768px) 92vw, 560px"
+                    priority={false}
+                  />
+
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(247,242,232,0.14) 0%, rgba(247,242,232,0.22) 100%), radial-gradient(circle at 50% 38%, rgba(201,178,124,0.14) 0%, rgba(201,178,124,0.04) 48%, rgba(247,242,232,0.12) 100%)",
+                    }}
+                  />
+
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
@@ -630,7 +760,6 @@ export default function LanternSea() {
                     }}
                   >
                     <SeedLantern
-                      char={selectedLamp.name.charAt(0)}
                       lit={lightingState === "lighting" || lightingState === "completed"}
                       size="lg"
                       reduceMotion={reduceMotion}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import Link from "next/link";
 import type { Product } from "@/lib/admin/types";
 
 const accents = ["rgba(200,185,154", "rgba(180,210,170", "rgba(210,185,220", "rgba(220,200,150"];
@@ -128,7 +129,7 @@ function ProductCard({
           style={{ background: `linear-gradient(90deg, ${product.accent},0.4), transparent)` }}
         />
         <p className="text-[11.5px] tracking-[0.04em] text-[rgba(100,75,35,0.52)] leading-relaxed">
-          {product.desc}
+          {product.shortDescription ?? product.subtitle}
         </p>
       </div>
     </motion.div>
@@ -224,9 +225,9 @@ export default function Products() {
           transition={{ duration: 1, delay: 0.9 }}
           className="mt-12 flex justify-center"
         >
-          <a href="/products" className="btn-zen text-[13px] px-10 py-3.5 tracking-[0.2em]">
+          <Link href="/products" className="btn-zen text-[13px] px-10 py-3.5 tracking-[0.2em]">
             查看全部修持法物
-          </a>
+          </Link>
         </motion.div>
       </div>
 

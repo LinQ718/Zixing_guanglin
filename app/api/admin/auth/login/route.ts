@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import {
   ADMIN_SESSION_COOKIE,
@@ -61,3 +62,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message: "登入失敗" }, { status: 400 });
   }
 }
+

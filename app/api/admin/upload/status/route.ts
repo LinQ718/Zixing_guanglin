@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE, validateSessionToken } from "@/lib/admin/auth/session";
 import { hasR2Config } from "@/lib/r2/server";
@@ -33,3 +34,4 @@ export async function GET(request: NextRequest) {
     missingKeys,
   });
 }
+

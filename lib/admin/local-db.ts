@@ -104,10 +104,10 @@ export async function upsertEntityLocal<T extends AdminEntity>(
   return rows.find((x) => (x as EntityMap[T] & TimedRecord).id === id) as EntityMap[T];
 }
 
-export async function deleteEntityLocal(entity: AdminEntity, id: string) {
+export async function deleteEntityLocal<T extends AdminEntity>(entity: T, id: string) {
   const db = await readDb();
-  const rows = db[entity] as Array<TimedRecord>;
-  db[entity] = rows.filter((x) => x.id !== id) as AdminDbShape[typeof entity];
+  const rows = db[entity] as AdminDbShape[T];
+  db[entity] = rows.filter((x) => x.id !== id) as AdminDbShape[T];
   await writeDb(db);
 }
 

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE } from "@/lib/admin/auth/session";
 
@@ -14,3 +15,4 @@ export async function POST() {
   });
   return response;
 }
+

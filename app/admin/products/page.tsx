@@ -207,6 +207,7 @@ export default function ProductsAdminPage() {
       useCases: editing.useCases.filter((x) => x.trim().length > 0),
       practiceSteps: editing.practiceSteps.filter((x) => x.trim().length > 0),
       relatedProductIds: editing.relatedProductIds.filter((x) => x !== editing.id),
+      meritAmount: editing.meritAmount ?? 0,
       meritPrice: editing.meritAmount,
       price: editing.meritAmount,
     };
@@ -322,7 +323,7 @@ export default function ProductsAdminPage() {
       editing.subtitle.trim().length > 0,
       editing.shortDescription.trim().length > 0,
       editing.description.trim().length > 0,
-      editing.meritAmount > 0,
+      (editing.meritAmount ?? 0) > 0,
       editing.meaning.trim().length > 0,
       editing.practiceMeaning.trim().length > 0,
       editing.contemplation.trim().length > 0,

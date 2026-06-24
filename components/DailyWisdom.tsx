@@ -4,178 +4,102 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 
 const WISDOM_QUOTES = [
-  "一念清淨，自有光明。",
-  "每一刻都是新的開始。",
-  "光從內心而生。",
-  "心若安定，處處皆是光明。",
-  "內心的平靜，是最深的祝福。",
-  "善念如光，照亮自己也溫暖他人。",
-  "放下執著，才能擁抱當下。",
-  "靜心聆聽，生命自會低語。",
+  {
+    text: "把呼吸放慢，心就有空間安住。",
+    tags: ["調息", "安住", "回身"] as const,
+  },
+  {
+    text: "願意回到當下，光就會重新聚攏。",
+    tags: ["當下", "聚光", "覺知"] as const,
+  },
+  {
+    text: "真正的平靜，不是沒有聲音，而是能聽見自己。",
+    tags: ["聆聽", "寧靜", "誠實"] as const,
+  },
+  {
+    text: "把善意留在每個念頭裡，日常自然生光。",
+    tags: ["善念", "溫暖", "發願"] as const,
+  },
 ] as const;
 
-const WISDOM_PARTICLES = Array.from({ length: 22 }, (_, i) => ({
-  left: `${4 + (i * 4.6) % 92}%`,
-  top: `${8 + (i * 3.8) % 80}%`,
-  size: 1.5 + (i % 4),
-  duration: 6 + (i % 7),
-  delay: ((i * 17) % 90) / 10,
-  driftX: -18 + (i * 5.7) % 36,
-  driftY: -16 + (i * 4.9) % 32,
-}));
+const PRACTICE_OVERVIEW = [
+  { label: "晨起安住", value: "12 分鐘" },
+  { label: "呼吸觀照", value: "108 次" },
+  { label: "夜間回向", value: "5 分鐘" },
+] as const;
 
-const HALOS = [
-  { left: "14%", top: "24%", size: 170, dur: 6.2, delay: 0.3 },
-  { left: "76%", top: "30%", size: 220, dur: 8.4, delay: 1.4 },
-  { left: "40%", top: "64%", size: 190, dur: 7.1, delay: 2.1 },
-  { left: "72%", top: "72%", size: 150, dur: 5.9, delay: 2.8 },
+const REFLECTION_PROMPTS = [
+  "今天哪一刻，心最安定？",
+  "哪個念頭值得放下？",
+  "我想把哪一份善意帶給他人？",
+] as const;
+
+const AMBIENT_LIGHTS = [
+  { left: "12%", top: "20%", size: 210, duration: 12, delay: 0.4 },
+  { left: "82%", top: "16%", size: 240, duration: 14, delay: 1.1 },
+  { left: "74%", top: "78%", size: 190, duration: 11, delay: 0.9 },
 ];
-
-const MIST_LAYERS = [
-  { left: "-8%", top: "6%", width: "42%", height: "36%", dur: 16, drift: 36, delay: 0 },
-  { left: "58%", top: "18%", width: "40%", height: "34%", dur: 20, drift: 28, delay: 1.2 },
-  { left: "16%", top: "58%", width: "48%", height: "30%", dur: 18, drift: 32, delay: 2.3 },
-];
-
-const RIPPLE_RINGS = [120, 200, 280];
 
 export default function DailyWisdom() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-15%" });
+  const inView = useInView(ref, { once: true, margin: "-12%" });
   const reduceMotion = useReducedMotion();
   const [quoteIndex, setQuoteIndex] = useState(0);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
       setQuoteIndex((prev) => (prev + 1) % WISDOM_QUOTES.length);
-    }, 5200);
+    }, 6200);
 
     return () => window.clearInterval(timer);
   }, []);
 
   return (
-    <section
-      id="wisdom"
-      ref={ref}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden py-24 md:py-32"
-    >
+    <section id="wisdom" ref={ref} className="relative overflow-hidden py-16 md:py-24">
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 90% at 10% 0%, rgba(204,226,212,0.45) 0%, rgba(250,247,242,1) 58%), radial-gradient(100% 78% at 100% 100%, rgba(213,231,216,0.26) 0%, rgba(250,247,242,0.1) 70%)",
+            "linear-gradient(180deg, rgba(248,243,235,1) 0%, rgba(246,238,227,0.98) 48%, rgba(243,234,221,0.95) 100%)",
         }}
       />
 
-      <div className="absolute inset-0 pointer-events-none opacity-[0.14]"
+      <div
+        className="absolute inset-0 opacity-[0.13]"
         style={{
           backgroundImage:
             "linear-gradient(rgba(138,109,65,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(138,109,65,0.08) 1px, transparent 1px)",
-          backgroundSize: "58px 58px",
-          maskImage:
-            "radial-gradient(ellipse at 50% 48%, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.15) 68%, transparent 100%)",
+          backgroundSize: "54px 54px",
         }}
       />
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {MIST_LAYERS.map((mist, i) => (
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {AMBIENT_LIGHTS.map((light, idx) => (
           <motion.div
-            key={`mist-${i}`}
-            className="absolute rounded-full"
-            style={{
-              left: mist.left,
-              top: mist.top,
-              width: mist.width,
-              height: mist.height,
-              background:
-                "radial-gradient(ellipse at 50% 50%, rgba(223,237,227,0.42) 0%, rgba(223,237,227,0.22) 42%, rgba(223,237,227,0) 75%)",
-              filter: "blur(22px)",
-            }}
-            animate={
-              reduceMotion
-                ? { opacity: 0.45 }
-                : {
-                    x: [0, mist.drift, -mist.drift * 0.6, 0],
-                    y: [0, -mist.drift * 0.28, mist.drift * 0.2, 0],
-                    opacity: [0.36, 0.54, 0.4, 0.36],
-                    scale: [1, 1.05, 0.97, 1],
-                  }
-            }
-            transition={{
-              duration: mist.dur,
-              delay: mist.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-
-        {WISDOM_PARTICLES.map((p, i) => (
-          <motion.span
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              left: p.left,
-              top: p.top,
-              width: p.size,
-              height: p.size,
-              background:
-                "radial-gradient(circle, rgba(239,226,190,0.9) 0%, rgba(191,164,112,0.4) 55%, transparent 100%)",
-              boxShadow: "0 0 14px rgba(227,205,150,0.28)",
-            }}
-            animate={
-              reduceMotion
-                ? { opacity: 0.3 }
-                : {
-                    x: [0, p.driftX, -p.driftX * 0.6, p.driftX * 0.35, 0],
-                    y: [0, -p.driftY, p.driftY * 0.4, -p.driftY * 0.6, 0],
-                    opacity: [0.14, 0.62, 0.2, 0.55, 0.14],
-                    scale: [0.85, 1.2, 0.9, 1.05, 0.85],
-                  }
-            }
-            transition={{
-              duration: p.duration,
-              delay: p.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-
-      <motion.div
-        className="absolute -left-[20%] top-[30%] w-[70%] h-[20%] pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(112deg, rgba(255,255,255,0), rgba(255,245,217,0.28), rgba(255,255,255,0))",
-          filter: "blur(12px)",
-          transform: "rotate(-6deg)",
-        }}
-        animate={reduceMotion ? { opacity: 0.2 } : { x: ["-14%", "18%", "-14%"], opacity: [0.08, 0.34, 0.08] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {HALOS.map((halo, index) => (
-          <motion.div
-            key={index}
+            key={idx}
             className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{
-              left: halo.left,
-              top: halo.top,
-              width: halo.size,
-              height: halo.size,
-              border: "1px solid rgba(201,175,120,0.22)",
-              boxShadow: "inset 0 0 0 18px rgba(201,175,120,0.04)",
-              filter: "blur(0.2px)",
+              left: light.left,
+              top: light.top,
+              width: light.size,
+              height: light.size,
+              background:
+                "radial-gradient(circle, rgba(188,153,92,0.18) 0%, rgba(188,153,92,0.06) 42%, rgba(188,153,92,0) 72%)",
+              filter: "blur(2px)",
             }}
-            animate={{
-              opacity: [0.05, 0.2, 0.06],
-              scale: [0.88, 1.12, 0.92],
-            }}
+            animate={
+              reduceMotion
+                ? { opacity: 0.2 }
+                : {
+                    scale: [0.92, 1.06, 0.95],
+                    opacity: [0.16, 0.3, 0.16],
+                    x: [0, 12, -8, 0],
+                    y: [0, -10, 8, 0],
+                  }
+            }
             transition={{
-              duration: halo.dur,
-              delay: halo.delay,
+              duration: light.duration,
+              delay: light.delay,
               repeat: Infinity,
               ease: "easeInOut",
             }}
@@ -183,114 +107,164 @@ export default function DailyWisdom() {
         ))}
       </div>
 
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {RIPPLE_RINGS.map((ring, i) => (
-          <motion.div
-            key={`ring-${ring}`}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{
-              width: ring,
-              height: ring,
-              border: "1px solid rgba(199,171,114,0.18)",
-            }}
-            animate={
-              reduceMotion
-                ? { opacity: 0.08 }
-                : {
-                    scale: [0.88, 1.22],
-                    opacity: [0.16, 0],
-                  }
-            }
-            transition={{
-              duration: 6.4 + i * 1.2,
-              delay: i * 1.35,
-              repeat: Infinity,
-              ease: "easeOut",
-            }}
-          />
-        ))}
-      </div>
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 84% 18%, rgba(112,145,122,0.14) 0%, rgba(112,145,122,0.06) 36%, transparent 66%)",
+        }}
+      />
 
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6">
-        <div className="p-4 md:p-10 text-center relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.08] pointer-events-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 16% 22%, rgba(138,109,65,0.25) 0.8px, transparent 1.2px), radial-gradient(circle at 78% 68%, rgba(138,109,65,0.2) 0.8px, transparent 1.2px)",
-              backgroundSize: "140px 140px, 160px 160px",
-            }}
-          />
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-10">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="mb-8 text-center md:mb-10"
+        >
+          <p className="mb-3 text-[11px] tracking-[0.42em] text-[rgba(104,77,42,0.72)]">DAILY WISDOM</p>
+          <h2 className="font-serif-tc text-[clamp(1.75rem,4.4vw,2.8rem)] tracking-[0.18em] text-[rgba(79,57,26,0.92)]">
+            今日心語
+          </h2>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
+        <div className="space-y-5 lg:space-y-6">
+          <motion.article
+            initial={{ opacity: 0, y: 22 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="mb-8 md:mb-10"
+            transition={{ duration: 0.85, ease: "easeOut", delay: 0.06 }}
+            className="relative overflow-hidden rounded-[2rem] border border-[rgba(129,100,61,0.2)] bg-[linear-gradient(140deg,rgba(255,253,248,0.88),rgba(248,239,227,0.7))] p-6 shadow-[0_22px_52px_rgba(89,63,30,0.14)] backdrop-blur-sm md:p-8"
           >
-            <h2 className="font-serif-tc text-[clamp(1.6rem,4vw,2.4rem)] tracking-[0.28em] text-[rgba(85,67,38,0.78)]">
-              今日心語
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
-            className="relative mx-auto min-h-[148px] md:min-h-[170px] max-w-3xl flex items-center justify-center"
-          >
-            <AnimatePresence mode="wait">
-              <motion.blockquote
-                key={quoteIndex}
-                initial={{ opacity: 0, y: 20, filter: "blur(5px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -16, filter: "blur(4px)" }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="font-serif-tc text-[clamp(1.5rem,4.5vw,2.5rem)] font-light tracking-[0.2em] leading-[1.9] text-[rgba(96,72,36,0.86)]"
-              >
-                <span>「</span>
-                {Array.from(WISDOM_QUOTES[quoteIndex]).map((char, index) => (
-                  <motion.span
-                    key={`${quoteIndex}-${index}-${char}`}
-                    className="inline-block"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, delay: 0.04 * index, ease: "easeOut" }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-                <span>」</span>
-              </motion.blockquote>
-            </AnimatePresence>
-          </motion.div>
-
-          <div className="mx-auto mt-1 mb-2 h-[2px] w-[160px] rounded-full bg-[rgba(138,109,65,0.14)] overflow-hidden">
-            <motion.div
-              key={`progress-${quoteIndex}`}
-              className="h-full rounded-full bg-[rgba(188,154,95,0.5)]"
-              initial={{ width: "0%", opacity: 0.9 }}
-              animate={{ width: "100%", opacity: 0.75 }}
-              transition={{ duration: 4.8, ease: "linear" }}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.14]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 12% 16%, rgba(146,111,62,0.45) 1px, transparent 1.5px), radial-gradient(circle at 82% 74%, rgba(146,111,62,0.38) 1px, transparent 1.5px)",
+                backgroundSize: "130px 130px, 150px 150px",
+              }}
             />
-          </div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 8 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1, delay: 0.35, ease: "easeOut" }}
-            className="mt-8 md:mt-10 text-[clamp(0.95rem,2.1vw,1.12rem)] tracking-[0.12em] text-[rgba(96,72,36,0.64)]"
-          >
-            讓 <span className="font-medium text-[rgba(96,72,36,0.8)]">心慢下來</span>{" "}
-            <span className="font-medium text-[rgba(96,72,36,0.8)]">呼吸變穩</span>{" "}
-            <span className="font-medium text-[rgba(96,72,36,0.8)]">世界安靜</span>{" "}
-            <span className="font-medium text-[rgba(96,72,36,0.8)]">內在被安放</span>
-          </motion.p>
+            <div className="relative text-center">
+              <div className="mb-6 flex items-center justify-center md:mb-7">
+                <p className="text-[11px] tracking-[0.26em] text-[rgba(104,77,42,0.66)]">心語輪播</p>
+              </div>
+
+              <div className="pointer-events-none absolute left-4 top-3 text-[2rem] leading-none text-[rgba(120,92,52,0.18)] md:left-6 md:top-4">
+                「
+              </div>
+              <div className="pointer-events-none absolute bottom-8 right-4 text-[2rem] leading-none text-[rgba(120,92,52,0.18)] md:bottom-9 md:right-6">
+                」
+              </div>
+
+              <div className="flex min-h-[120px] items-center justify-center md:min-h-[140px]">
+                <AnimatePresence mode="wait">
+                  <motion.blockquote
+                    key={quoteIndex}
+                    initial={{ opacity: 0, y: 18, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, y: -12, filter: "blur(3px)" }}
+                    transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+                    className="mx-auto max-w-5xl font-serif-tc text-[clamp(1.45rem,4vw,2.5rem)] leading-[1.65] tracking-[0.1em] text-[rgba(82,58,26,0.9)]"
+                  >
+                    「{WISDOM_QUOTES[quoteIndex].text}」
+                  </motion.blockquote>
+                </AnimatePresence>
+              </div>
+
+              <div className="mt-5 h-[2px] w-full overflow-hidden rounded-full bg-[rgba(138,109,65,0.16)]">
+                <motion.div
+                  key={`wisdom-progress-${quoteIndex}`}
+                  className="h-full rounded-full bg-[linear-gradient(90deg,rgba(184,146,84,0.3),rgba(184,146,84,0.75))]"
+                  initial={{ width: "0%", opacity: 0.95 }}
+                  animate={{ width: "100%", opacity: 0.8 }}
+                  transition={{ duration: 6.1, ease: "linear" }}
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-2">
+                {WISDOM_QUOTES.map((_, idx) => (
+                  <button
+                    key={`quote-dot-${idx}`}
+                    type="button"
+                    aria-label={`切換心語 ${idx + 1}`}
+                    onClick={() => setQuoteIndex(idx)}
+                    className="h-2.5 w-2.5 rounded-full transition-all duration-300"
+                    style={{
+                      backgroundColor:
+                        idx === quoteIndex ? "rgba(160,122,64,0.9)" : "rgba(160,122,64,0.26)",
+                      transform: idx === quoteIndex ? "scale(1.12)" : "scale(1)",
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                {WISDOM_QUOTES[quoteIndex].tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-[rgba(136,106,62,0.2)] bg-[rgba(255,252,246,0.62)] px-3 py-1 text-[11px] tracking-[0.12em] text-[rgba(96,72,36,0.74)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </motion.article>
+
+          <div className="grid gap-4 md:gap-5 lg:grid-cols-2">
+            <motion.article
+              initial={{ opacity: 0, y: 16 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.13 }}
+              className="h-full rounded-3xl border border-[rgba(129,100,61,0.16)] bg-[rgba(255,252,246,0.72)] p-5 shadow-[0_15px_34px_rgba(89,63,30,0.1)]"
+            >
+              <p className="text-[11px] tracking-[0.24em] text-[rgba(102,75,39,0.7)]">今日練習提要</p>
+              <div className="mt-4 space-y-2.5">
+                {PRACTICE_OVERVIEW.map((item, idx) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between rounded-xl border border-[rgba(132,102,61,0.14)] bg-[rgba(255,252,247,0.54)] px-3 py-2.5"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(137,107,61,0.16)] text-[11px] text-[rgba(88,62,30,0.85)]">
+                        {idx + 1}
+                      </span>
+                      <p className="text-[13px] tracking-[0.06em] text-[rgba(72,50,21,0.88)]">{item.label}</p>
+                    </div>
+                    <span className="text-[12px] tracking-[0.08em] text-[rgba(92,68,34,0.74)]">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.article>
+
+            <motion.article
+              initial={{ opacity: 0, y: 16 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.22 }}
+              className="h-full rounded-3xl border border-[rgba(129,100,61,0.16)] bg-[rgba(255,252,246,0.72)] p-5 shadow-[0_15px_34px_rgba(89,63,30,0.1)]"
+            >
+              <p className="text-[11px] tracking-[0.24em] text-[rgba(102,75,39,0.7)]">晚間自問</p>
+              <div className="mt-4 space-y-2.5">
+                {REFLECTION_PROMPTS.map((item, idx) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-2.5 rounded-xl border border-[rgba(132,102,61,0.14)] bg-[rgba(255,252,247,0.54)] px-3 py-2.5"
+                  >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(137,107,61,0.16)] text-[11px] text-[rgba(88,62,30,0.85)]">
+                      {idx + 1}
+                    </span>
+                    <p className="text-[13px] tracking-[0.06em] text-[rgba(72,50,21,0.88)]">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.article>
+          </div>
         </div>
       </div>
 
       <div
-        className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
-        style={{ background: "linear-gradient(to bottom, transparent, rgba(250,247,242,1))" }}
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-20"
+        style={{ background: "linear-gradient(to bottom, rgba(246,238,227,0), rgba(246,238,227,1))" }}
       />
     </section>
   );

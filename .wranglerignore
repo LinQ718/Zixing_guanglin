@@ -1,0 +1,11 @@
+.next/cache/**/*
+node_modules/**/*
+.env.local
+.env.*.local
+*.log
+.git/**/*
+.gitignore
+README.md
+CLOUDFLARE_DEPLOYMENT.md
+deploy-frontend.ps1
+deploy-frontend.sh

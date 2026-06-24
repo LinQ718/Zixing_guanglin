@@ -1,0 +1,23 @@
+[
+  {
+    "include": "/*",
+    "exclude": [
+      "/_next/static/*",
+      "/public/*",
+      "*.weba",
+      "*.webp",
+      "*.svg",
+      "*.png",
+      "*.jpg",
+      "*.jpeg",
+      "*.gif",
+      "*.css",
+      "*.js",
+      "*.json"
+    ]
+  },
+  {
+    "include": "/api/*",
+    "method": "POST"
+  }
+]

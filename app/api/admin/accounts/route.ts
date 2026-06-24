@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin/authz";
 import { listAdminAccounts, upsertAdminAccount } from "@/lib/admin/accounts";
@@ -41,3 +42,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, message }, { status: 400 });
   }
 }
+

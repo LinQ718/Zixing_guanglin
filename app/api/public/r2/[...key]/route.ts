@@ -1,8 +1,14 @@
+export async function generateStaticParams() {
+  return [];
+}
+
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { hasR2Config, r2Bucket, r2Client } from "@/lib/r2/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-static";
+export const revalidate = false;
 
 export async function GET(
   _request: NextRequest,
@@ -28,13 +34,13 @@ export async function GET(
     );
 
     const contentType = res.ContentType || "application/octet-stream";
-    const body = await res.Body?.transformToByteArray();
+    const bytes = await res.Body?.transformToByteArray();
 
-    if (!body) {
+    if (!bytes) {
       return NextResponse.json({ ok: false, message: "找不到圖片內容" }, { status: 404 });
     }
 
-    return new NextResponse(body, {
+    return new NextResponse(Buffer.from(bytes), {
       status: 200,
       headers: {
         "Content-Type": contentType,
@@ -45,3 +51,4 @@ export async function GET(
     return NextResponse.json({ ok: false, message: "讀取圖片失敗" }, { status: 404 });
   }
 }
+
