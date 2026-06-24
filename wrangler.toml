@@ -1,6 +1,7 @@
 name = "linqtw"
 compatibility_date = "2026-06-17"
 pages_build_output_dir = ".next"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
-name = "linqtw"
+name = "linqtw-prod"

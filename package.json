@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cloudflare": "next build",
-    "deploy:cloudflare": "npm run build && npx wrangler pages deploy out --project-name linqtw --branch main",
+    "deploy:cloudflare": "npm run build && npx wrangler pages deploy .next --project-name linqtw --branch main",
     "start": "next start",
     "lint": "eslint"
   },
