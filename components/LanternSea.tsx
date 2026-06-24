@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import lanternSeaBackground from "./Logo/lantern Sea.png";
+import lanternSeaBackground from "./Logo/Lantern Sea.png";
 import lanternSeaModalBackground from "./Logo/Lantern Sea2.png";
-import lanternImage from "./Logo/lantern.png";
+import lanternImage from "./Logo/Lantern.png";
 
 type Lamp = {
   id: string;
